@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import Excel from "exceljs"
 import PptxGenJS from 'pptxgenjs';
+import { createWordInitials, getStateInitials } from './Utils/functions';
 
 function App() {
 
@@ -24,13 +25,12 @@ function App() {
 
   const getVoucherCode = (voucher) => {
     let date = new Date().toLocaleDateString().replaceAll('/', '')
-    return `${voucher.empresa_sigla}${voucher.cidade_sigla}${voucher.estado}${date}#${voucher.quantidade}@${voucher.unidade}`
+    return `${createWordInitials(voucher.empresa)}${createWordInitials(voucher.cidade)}${getStateInitials(voucher.estado)}${date}#${voucher.quantidade}@${voucher.unidade}`
   }
 
   const createVouchers = (allVouchers) => {
     let pres = new PptxGenJS()
     allVouchers.forEach((curVoucher) => {
-      console.log(curVoucher)
       let slide = pres.addSlide()
       let textBoxCupom = getVoucherCode(curVoucher)
       let textBoxCupomConfig = { 
@@ -41,7 +41,7 @@ function App() {
         fontSize: 24, 
         fontFace: 'Arial Black',
       }
-      let textBoxTop = `Este voucher é de propriedade da empresa ${curVoucher.empresa}, Unidade ${curVoucher.unidade}, inscrita no CNPJ: ${curVoucher.cnpj}, situada em ${curVoucher.endereco} - ${curVoucher.estado}, CEP: ${curVoucher.cep}.`
+      let textBoxTop = `Este voucher é de propriedade da empresa ${curVoucher.empresa}, Unidade ${curVoucher.unidade}, inscrita no CNPJ: ${curVoucher.cnpj}, situada em ${curVoucher.endereco} - ${getStateInitials(curVoucher.estado)}, CEP: ${curVoucher.cep}.`
       let textBoxTopConfig = { 
         x: 0.7, 
         y: '62%',
@@ -50,7 +50,9 @@ function App() {
         fontSize: 12,
         fontFace: 'Liberation Sans',
       }
-      let textBoxBottom = `O código é válido para ${curVoucher.quantidade} licença${curVoucher.quantidade > 1 ? '' : 's'} do Curso: ${curVoucher.curso}, o cupom é válido até dia ${new Date().toLocaleDateString()}.`
+      let curDate = new Date()
+      curDate.setMonth(curDate.getMonth() + 1)
+      let textBoxBottom = `O código é válido para ${curVoucher.quantidade} licença${Number(curVoucher.quantidade) > 1 ? 's' : ''} do Curso: ${curVoucher.curso}, o cupom é válido até o dia ${curDate.toLocaleDateString()}.`
       let textBoxBottomConfig = { 
         x: 0.7, 
         y: '78%', 
@@ -91,8 +93,7 @@ function App() {
         vouchers.push({})
         vouchers[curVoucher].id = rowId
         let attributes = [
-          'empresa_sigla',
-          'cidade_sigla',
+          'cidade',
           'quantidade', 
           'unidade', 
           'empresa', 
