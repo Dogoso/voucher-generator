@@ -88,25 +88,34 @@ function App() {
     const workbook = new Excel.Workbook()
     await workbook.xlsx.load(file)
     workbook.eachSheet((worksheet) => {
+      let attributes = []
+      /*
+        cidade
+        quantidade 
+        unidade 
+        empresa 
+        cnpj
+        endereco 
+        estado
+        curso
+        cep
+      */
       worksheet.eachRow((row, rowId) => {
-        let curVoucher = rowId - 1
-        vouchers.push({})
-        vouchers[curVoucher].id = rowId
-        let attributes = [
-          'cidade',
-          'quantidade', 
-          'unidade', 
-          'empresa', 
-          'cnpj', 
-          'endereco', 
-          'estado',
-          'curso',
-          'cep',
-        ]
-        row.eachCell((cell, cellId) => {
-          let curAttribute = cellId - 1
-          vouchers[curVoucher][attributes[curAttribute]] = typeof(cell.value) === 'object' ? cell.value.text : cell.value
-        })
+        if(rowId === 1) {
+          row.eachCell((cell) => {
+            attributes.push(
+              (typeof(cell.value) === 'object' ? cell.value.text : cell.value).toLowerCase()
+            )
+          })
+        } else {
+          let curVoucher = rowId - 1
+          vouchers.push({})
+          vouchers[curVoucher].id = rowId
+          row.eachCell((cell, cellId) => {
+            let curAttribute = cellId - 1
+            vouchers[curVoucher][attributes[curAttribute]] = typeof(cell.value) === 'object' ? cell.value.text : cell.value
+          })
+        }
       })
     });
     setAllVouchers(vouchers)

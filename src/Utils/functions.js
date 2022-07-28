@@ -1,8 +1,6 @@
 export const getStateInitials = (state) => {
     let formatedState = state.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     formatedState = formatedState.toLowerCase()
-    console.log(formatedState)
-    if(formatedState.length === 2) return formatedState.toUpperCase()
     switch(formatedState) {
         case "acre":
             return "AC"
@@ -59,7 +57,67 @@ export const getStateInitials = (state) => {
         case "tocantins":
             return "TO"
         default:
-            throw new Error(`Estado inválido! ${state}`)
+            return discoverCurState(formatedState)
+    }
+}
+
+const discoverCurState = (stateInitials) => {
+    let curState = stateInitials.toUpperCase()
+    switch(curState) {
+        case "AC": 
+            return curState
+        case "AL": 
+            return curState
+        case "AP": 
+            return curState
+        case "AM": 
+            return curState
+        case "BA": 
+            return curState
+        case "CE": 
+            return curState
+        case "DF": 
+            return curState
+        case "ES": 
+            return curState
+        case "GO": 
+            return curState
+        case "MA":
+            return curState
+        case "MT":
+            return curState
+        case "MS": 
+            return curState
+        case "MG": 
+            return curState
+        case "PA": 
+            return curState
+        case "PB": 
+            return curState
+        case "PE": 
+            return curState
+        case "PI": 
+            return curState
+        case "RJ": 
+            return curState
+        case "RN": 
+            return curState
+        case "RS": 
+            return curState
+        case "RO": 
+            return curState
+        case "RR": 
+            return curState
+        case "SC": 
+            return curState
+        case "SP": 
+            return curState
+        case "SE": 
+            return curState
+        case "TO":
+            return curState
+        default:
+            throw new Error(`Estado "${curState}" inválido.`)
     }
 }
 
