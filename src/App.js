@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import Excel from "exceljs"
 import PptxGenJS from 'pptxgenjs';
-import { createWordInitials, getStateInitials } from './Utils/functions';
+import { formatDate, formatUnity, getStateInitials, getVoucherCode } from './Utils/functions';
 
 function App() {
 
@@ -23,11 +23,6 @@ function App() {
     }
   }, [allVouchers])
 
-  const getVoucherCode = (voucher) => {
-    let date = new Date().toLocaleDateString().replaceAll('/', '')
-    return `${createWordInitials(voucher.empresa)}${createWordInitials(voucher.cidade)}${getStateInitials(voucher.estado)}${date}#${voucher.quantidade}@${voucher.unidade}`
-  }
-
   const createVouchers = (allVouchers) => {
     let pres = new PptxGenJS()
     allVouchers.forEach((curVoucher) => {
@@ -41,7 +36,7 @@ function App() {
         fontSize: 24, 
         fontFace: 'Arial Black',
       }
-      let textBoxTop = `Este voucher é de propriedade da empresa ${curVoucher.empresa}, Unidade ${curVoucher.unidade}, inscrita no CNPJ: ${curVoucher.cnpj}, situada em ${curVoucher.endereco} - ${getStateInitials(curVoucher.estado)}, CEP: ${curVoucher.cep}.`
+      let textBoxTop = `Este voucher é de propriedade da empresa ${curVoucher.empresa}, Unidade ${formatUnity(curVoucher)}, inscrita no CNPJ: ${curVoucher.cnpj}, situada em ${curVoucher.endereco}, ${curVoucher.cidade} - ${getStateInitials(curVoucher.estado)}, CEP: ${curVoucher.cep}.`
       let textBoxTopConfig = { 
         x: 0.7, 
         y: '62%',
@@ -50,9 +45,9 @@ function App() {
         fontSize: 12,
         fontFace: 'Liberation Sans',
       }
-      let curDate = new Date()
-      curDate.setMonth(curDate.getMonth() + 1)
-      let textBoxBottom = `O código é válido para ${curVoucher.quantidade} licença${Number(curVoucher.quantidade) > 1 ? 's' : ''} do Curso: ${curVoucher.curso}, o cupom é válido até o dia ${curDate.toLocaleDateString()}.`
+      let curDate = formatDate(new Date())
+      curDate = curDate.replace(curDate.slice(3, 5), String(Number(curDate.slice(3, 5)) + 1).padStart(2, '0'))
+      let textBoxBottom = `O código é válido para ${curVoucher.quantidade} licença${Number(curVoucher.quantidade) > 1 ? 's' : ''} do Curso: ${curVoucher.curso}, o cupom é válido até o dia ${curDate}.`
       let textBoxBottomConfig = { 
         x: 0.7, 
         y: '78%', 
@@ -80,7 +75,7 @@ function App() {
       slide.addText(textBoxBottom, textBoxBottomConfig)
       slide.addText(textBoxFooter, textBoxFooterConfig)
     })
-    pres.writeFile(`Vouchers-${new Date().toLocaleDateString()}.pdf`)
+    pres.writeFile(`Vouchers-${formatDate(new Date())}.pdf`)
   }
 
   const readXLSX = async () => {
@@ -108,8 +103,9 @@ function App() {
             )
           })
         } else {
-          let curVoucher = rowId - 1
+          let curVoucher = rowId - 2
           vouchers.push({})
+          console.log(curVoucher, vouchers, vouchers[curVoucher])
           vouchers[curVoucher].id = rowId
           row.eachCell((cell, cellId) => {
             let curAttribute = cellId - 1

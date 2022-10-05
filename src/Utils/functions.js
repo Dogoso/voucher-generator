@@ -1,3 +1,25 @@
+export const getVoucherCode = (voucher) => {
+    return `${createWordInitials(voucher.empresa)}${createWordInitials(voucher.cidade)}${getStateInitials(voucher.estado)}${formatDate(new Date()).replaceAll("/", '')}#${voucher.quantidade}@${formatUnity(voucher)}`
+}
+
+export const formatUnity = (voucher) => {
+    if(String(voucher.empresa).toLowerCase() === 'bradesco') {
+        let curUnity = String(voucher.unidade)
+        if(curUnity.indexOf("(") !== -1) {
+            curUnity = curUnity.substring(curUnity.indexOf("("), curUnity.indexOf(")")).toUpperCase().replace("SUB-", '').replace("(", '').replace(")", '')
+        } 
+        return curUnity.padStart(4, '0')
+    }
+    return voucher.unidade
+}
+
+export const formatDate = (date) => {
+    let placeholder = "dd/MM/yyyy"
+    return placeholder.replace("dd", String(date.getUTCDate()).padStart(2, '0'))
+    .replace("MM", String(date.getUTCMonth() + 1).padStart(2, '0'))
+    .replace("yyyy", String(date.getUTCFullYear()).padStart(4, '0'))
+}
+
 export const getStateInitials = (state) => {
     let formatedState = state.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     formatedState = formatedState.toLowerCase()
