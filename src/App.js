@@ -6,6 +6,7 @@ import { formatDate, formatUnity, getStateInitials, getVoucherCode } from './Uti
 
 function App() {
 
+  const [error, setError] = useState(null)
   const [file, setFile] = useState(null)
   const [allVouchers, setAllVouchers] = useState([])
 
@@ -36,7 +37,9 @@ function App() {
         fontSize: 24, 
         fontFace: 'Arial Black',
       }
-      let textBoxTop = `Este voucher é de propriedade da empresa ${curVoucher.empresa}, Unidade ${formatUnity(curVoucher)}, inscrita no CNPJ: ${curVoucher.cnpj}, situada em ${curVoucher.endereco}, ${curVoucher.cidade} - ${getStateInitials(curVoucher.estado)}, CEP: ${curVoucher.cep}.`
+      let voucherUnity = formatUnity(curVoucher, setError)
+      if(voucherUnity === 'NaN') return
+      let textBoxTop = `Este voucher é de propriedade da empresa ${curVoucher.empresa}, Unidade ${voucherUnity}, inscrita no CNPJ: ${curVoucher.cnpj}, situada em ${curVoucher.endereco}, ${curVoucher.cidade} - ${getStateInitials(curVoucher.estado)}, CEP: ${curVoucher.cep}.`
       let textBoxTopConfig = { 
         x: 0.7, 
         y: '62%',
@@ -116,6 +119,10 @@ function App() {
     });
     setAllVouchers(vouchers)
   }
+
+  useEffect(() => {
+    if(error === 'NaN') alert("ERROR! O campo de UNIDADE digitados no excel não são números!")
+  }, [error])
 
   return (
     <section className='centered'>

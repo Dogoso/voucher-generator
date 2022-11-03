@@ -2,12 +2,16 @@ export const getVoucherCode = (voucher) => {
     return `${createWordInitials(voucher.empresa)}${createWordInitials(voucher.cidade)}${getStateInitials(voucher.estado)}${formatDate(new Date()).replaceAll("/", '')}#${voucher.quantidade}@${formatUnity(voucher)}`
 }
 
-export const formatUnity = (voucher) => {
+export const formatUnity = (voucher, setError) => {
     if(String(voucher.empresa).toLowerCase() === 'bradesco') {
         let curUnity = String(voucher.unidade)
         if(curUnity.indexOf("(") !== -1) {
             curUnity = curUnity.substring(curUnity.indexOf("("), curUnity.indexOf(")")).toUpperCase().replace("SUB-", '').replace("(", '').replace(")", '')
-        } 
+        }
+        if(isNaN(Number(curUnity))) {
+            setError('NaN')
+            return 'NaN'
+        }
         return curUnity.padStart(4, '0')
     }
     return voucher.unidade
